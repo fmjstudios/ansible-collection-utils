@@ -1,0 +1,10 @@
+---
+- name: Run RHEL-specific unattended upgrade configurations
+  ansible.builtin.include_tasks: autoupdate-RedHat.yml
+  when:
+    - ansible_os_family == 'RedHat'
+
+- name: Run Debian-specific unattended upgrade configurations
+  ansible.builtin.include_tasks: autoupdate-Debian.yml
+  when:
+    - ansible_os_family == 'Debian'

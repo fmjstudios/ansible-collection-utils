@@ -1,0 +1,8 @@
+---
+- name: install | Ensure the system has the necessary dependencies
+  ansible.builtin.apt:
+    name: "{{ __dep__ }}"
+    state: present
+  loop: "{{ __sysctl_dependencies }}"
+  loop_control:
+    loop_var: __dep__

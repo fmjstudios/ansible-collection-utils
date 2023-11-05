@@ -1,0 +1,22 @@
+---
+- name: autoupdate-Debian | Set correct update utility variables
+  ansible.builtin.set_fact:
+    update_utility: unattended-upgrades
+
+- name: autoupdate-Debian | Install unattended upgrades package.
+  ansible.builtin.package:
+    name: "{{ __upgrades__ }}"
+    state: present
+  loop:
+    - unattended-upgrades
+    - apt-listchanges
+  loop_control:
+    loop_var: __upgrades__
+
+- name: autoupdate-Debian | Enable unattended upgrades
+  ansible.builtin.template:
+    src: 20auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: 0644

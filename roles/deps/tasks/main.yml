@@ -1,0 +1,12 @@
+---
+- name: Install dependencies
+  ansible.builtin.apt:
+    name: "{{ __deps__ }}"
+    state: present
+  loop: "{{ packages }}"
+  loop_control:
+    loop_var: __deps__
+
+- name: Clean APT obsolete packages
+  ansible.builtin.apt:
+    clean: true

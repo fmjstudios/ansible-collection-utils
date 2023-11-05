@@ -1,0 +1,14 @@
+---
+- name: configure | Set the sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ __conf__.key }}"
+    value: "{{ __conf__.value }}"
+    sysctl_set: "{{ sysctl_set }}"
+    state: present
+    reload: "{{ sysctl_reload }}"
+  loop: "{{ sysctl_values | dict2items }}"
+  loop_control:
+    loop_var: __conf__
+  when: >
+    sysctl_values is defined and sysctl_values != {} and
+    sysctl_values.keys() | count > 0

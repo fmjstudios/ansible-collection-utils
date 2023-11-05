@@ -1,0 +1,38 @@
+---
+- name: preflight | Assert usage of systemd as an init system
+  ansible.builtin.assert:
+    that: ansible_service_mgr == 'systemd'
+    msg: "This role only works with systemd"
+
+- name: preflight | Install package fact dependencies
+  become: true
+  ansible.builtin.package:
+    name: "{{ _pkg_fact_req }}"
+    state: present
+  when: (_pkg_fact_req)
+  vars:
+    _pkg_fact_req: "{% if (ansible_pkg_mgr == 'apt') %}\
+      {{ ('python-apt' if ansible_python_version is version('3', '<') else 'python3-apt') }}
+      {% else %}\
+      {% endif %}"
+
+- name: preflight | Gather package facts
+  ansible.builtin.package_facts:
+  when: "not 'packages' in ansible_facts"
+
+- name: preflight | Assert that built-in variables are defined
+  ansible.builtin.assert:
+    that:
+      - sysctl_set is defined
+      - sysctl_set is boolean
+      - sysctl_reload is defined
+      - sysctl_reload is boolean
+    quiet: true
+
+- name: preflight | Assert that 'sysctl_values' has keys if it is defined
+  ansible.builtin.assert:
+    that:
+      - sysctl_values != {}
+      - sysctl_values is mapping
+      - sysctl_values.keys() | count > 0
+  when: sysctl_values is defined and sysctl_values != {}

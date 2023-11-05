@@ -1,0 +1,74 @@
+---
+- name: Ensure sudo group is present
+  ansible.builtin.group:
+    name: sudo
+    state: present
+
+- name: Ensure sudo group has sudo privileges
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^%sudo"
+    line: "%sudo ALL=(ALL:ALL) ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: Add new users
+  ansible.builtin.user:
+    name: "{{ __users__ }}"
+    password: "{{ password }}"
+    shell: /bin/bash
+    update_password: always
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: __users__
+  no_log: true
+
+- name: Ensure users to be sudo-capable
+  ansible.builtin.user:
+    name: "{{ __users__ }}"
+    groups: sudo
+    append: true
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: __users__
+  no_log: true
+
+- name: Ensure correct permissions for app-runner home directories for Apache compatiblity
+  ansible.builtin.file:
+    path: "/home/{{ users | first }}"
+    state: directory
+    mode: 0755
+    owner: "{{ users | first }}"
+    group: "{{ users | first }}"
+
+- name: Create app-runner directories for web app source
+  ansible.builtin.file:
+    path: "/home/{{ users | first }}/webapps"
+    state: directory
+    mode: 0755
+    owner: "{{ users | first }}"
+    group: "{{ users | first }}"
+
+- name: Create app-runner directories for cache files
+  ansible.builtin.file:
+    path: "/home/{{ users | first }}/cache"
+    state: directory
+    mode: 0755
+    owner: "{{ users | first }}"
+    group: "{{ users | first }}"
+
+- name: Create app-runner directories for log files
+  ansible.builtin.file:
+    path: "/home/{{ users | first }}/logs"
+    state: directory
+    mode: 0755
+    owner: "{{ users | first }}"
+    group: "{{ users | first }}"
+
+- name: Create backup-runner directories for cache files
+  ansible.builtin.file:
+    path: "/home/{{ users | last }}/backups"
+    state: directory
+    mode: 0755
+    owner: "{{ users | last }}"
+    group: "{{ users | last }}"

@@ -1,0 +1,4 @@
+APT::Periodic::Update-Package-Lists "{{ apt_upgrade_package_lists_days }}";
+APT::Periodic::Unattended-Upgrade "{{ apt_unattended_upgrade_days }}";
+APT::Periodic::Download-Upgradeable-Packages "{{ apt_download_upgradeable_days }}";
+APT::Periodic::AutocleanInterval "{{ apt_autoclean_days }}";
